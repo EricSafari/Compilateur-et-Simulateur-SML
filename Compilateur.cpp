@@ -50,6 +50,10 @@ int main(int argc, const char * argv[])
     list<Instruction *> listeInstr;
     list<int> listeInstrSML;
     list<int> listeIstrSMLtemp;
+
+	// Associer chaque Instruction à un Offset
+	unsigned short Offset = 0;
+	map<unsigned short, unsigned short> InstructionsOffset;
     
     // Fichier HAUT-NIVEAU
     fichSrc.open( "fichierSource.txt", ios::in );
@@ -87,36 +91,50 @@ int main(int argc, const char * argv[])
 			instructionTemp = (char *)instruction.c_str();
 			//command = (char *)instruction.c_str();
 			str = strtok(instructionTemp, " ");
+			
 			command.insert(0, str);
+			instruction.erase(0, sizeof(str) + 1);
+			argument = instruction;
 
 			if (strncmp("rem ", str, 4))
 			{
-				//
-				InstructionRem( "REM", command, ligneInstr );
+				instrPtr = new InstructionRem( "REM", argument, ligneInstr );
 			}
 			else if (strncmp("input ", str, 6))
 			{
-				InstructionInput( "INPUT", command, ligneInstr );
+				Offset++;
+				InstructionsOffset[ligneInstr] = Offset;
+				instrPtr = new InstructionInput( "INPUT", argument, ligneInstr );
 			}
 			else if (strncmp("let ", str, 4))
 			{
-				InstructionLet( "LET", command, ligneInstr );
+				Offset++;
+				InstructionsOffset[ligneInstr] = Offset;
+				instrPtr = new InstructionLet( "LET", argument, ligneInstr );
 			}
 			else if (strncmp("print ", str, 6))
 			{
-				InstructionPrint( "PRINT", command, ligneInstr );
+				Offset++;
+				InstructionsOffset[ligneInstr] = Offset;
+				instrPtr = new InstructionPrint( "PRINT", argument, ligneInstr );
 			}
 			else if (strncmp("goto ", str, 5))
 			{
-				InstructionPrint( "GOTO", command, ligneInstr );
+				Offset++;
+				InstructionsOffset[ligneInstr] = Offset;
+				instrPtr = new InstructionPrint( "GOTO", argument, ligneInstr );
 			}
 			else if (strncmp("if...goto ", str, 10))
 			{
-				InstructionIfGoto( "IF...GOTO", command, ligneInstr);
+				Offset++;
+				InstructionsOffset[ligneInstr] = Offset;
+				instrPtr = new InstructionIfGoto( "IF...GOTO", argument, ligneInstr);
 			}
 			else if (strncmp("end ", str, 4))
 			{
-				InstructionEnd( "END", command, ligneInstr );
+				Offset++;
+				InstructionsOffset[ligneInstr] = Offset;
+				instrPtr = new InstructionEnd( "END", argument, ligneInstr );
 			}
 			else
 			{
@@ -125,9 +143,9 @@ int main(int argc, const char * argv[])
 			}
 
 			//command.insert(0, str);
-			//instruction.erase( 3, sizeof(str) + 1 );
-			instruction.erase(0, sizeof(str) + 1);
-			argument = instruction;
+			
+			//instruction.erase(0, sizeof(str) + 1);
+			//argument = instruction;
 			/*
 			instrPtr->setLigne(ligneInstr);
 			instrPtr->setCmd(command);
