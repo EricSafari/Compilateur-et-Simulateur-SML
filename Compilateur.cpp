@@ -49,7 +49,7 @@ int main(int argc, const char * argv[])
 	Instruction * instrPtr;
     list<Instruction *> listeInstr;
     list<int> listeInstrSML;
-    list<int> listeIstrSMLtemp;
+    list<int> listeInstrSMLtemp;
 
 	// Associer chaque Instruction à un Offset
 	unsigned short Offset = 0;
@@ -86,14 +86,18 @@ int main(int argc, const char * argv[])
 			{
 			}*/
 			//str = strtok( instruction, " " );
+			// *** ENLEVER LA LIGNE ***
 			instruction.erase(0, 2 + 1);
 
 			instructionTemp = (char *)instruction.c_str();
-			//command = (char *)instruction.c_str();
+			// EXTRAIRE LA COMMANDE
 			str = strtok(instructionTemp, " ");
-			
 			command.insert(0, str);
+
+			// ****	  ENLEVER LA COMMANDE	****
 			instruction.erase(0, sizeof(str) + 1);
+
+			// *** Le Reste c'est l'Argument ***
 			argument = instruction;
 
 			if (strncmp("rem ", str, 4))
@@ -102,39 +106,39 @@ int main(int argc, const char * argv[])
 			}
 			else if (strncmp("input ", str, 6))
 			{
-				Offset++;
 				InstructionsOffset[ligneInstr] = Offset;
 				instrPtr = new InstructionInput( "INPUT", argument, ligneInstr );
+				Offset++;
 			}
 			else if (strncmp("let ", str, 4))
 			{
-				Offset++;
 				InstructionsOffset[ligneInstr] = Offset;
 				instrPtr = new InstructionLet( "LET", argument, ligneInstr );
+				Offset++;
 			}
 			else if (strncmp("print ", str, 6))
 			{
-				Offset++;
 				InstructionsOffset[ligneInstr] = Offset;
 				instrPtr = new InstructionPrint( "PRINT", argument, ligneInstr );
+				Offset++;
 			}
 			else if (strncmp("goto ", str, 5))
 			{
-				Offset++;
 				InstructionsOffset[ligneInstr] = Offset;
 				instrPtr = new InstructionPrint( "GOTO", argument, ligneInstr );
+				Offset++;
 			}
 			else if (strncmp("if...goto ", str, 10))
 			{
-				Offset++;
 				InstructionsOffset[ligneInstr] = Offset;
 				instrPtr = new InstructionIfGoto( "IF...GOTO", argument, ligneInstr);
+				Offset++;
 			}
 			else if (strncmp("end ", str, 4))
 			{
-				Offset++;
 				InstructionsOffset[ligneInstr] = Offset;
 				instrPtr = new InstructionEnd( "END", argument, ligneInstr );
+				Offset++;
 			}
 			else
 			{
@@ -142,82 +146,28 @@ int main(int argc, const char * argv[])
 				exit(-1);
 			}
 
-			//command.insert(0, str);
-			
-			//instruction.erase(0, sizeof(str) + 1);
-			//argument = instruction;
-			/*
-			instrPtr->setLigne(ligneInstr);
-			instrPtr->setCmd(command);
-			instrPtr->setParam(argument);
-			*/
 			listeInstr.push_back(instrPtr);
 		}
     }
     
-    /*instrPtr->setLigne( 50 );
-    instrPtr->setCmd( "rem" );
-    instrPtr->setParam( "this is a remark" );
-    
-    listeInstr.push_back( instrPtr );
-    
-    instrPtr->setLigne( 30 );
-    instrPtr->setCmd( "input" );
-    instrPtr->setParam( "x" );
-    
-    listeInstr.push_back( instrPtr );
-    
-    instrPtr->setLigne( 35 );
-    instrPtr->setCmd( "input" );
-    instrPtr->setParam( "y" );
-    
-    listeInstr.push_back( instrPtr );
-    
-    instrPtr->setLigne( 40 );
-    instrPtr->setCmd( "input" );
-    instrPtr->setParam( "j" );
-    
-    listeInstr.push_back( instrPtr );
-    
-    instrPtr->setLigne( 45 );
-    instrPtr->setCmd( "input" );
-    instrPtr->setParam( "k" );
-    
-    listeInstr.push_back( instrPtr );
-    
-    instrPtr->setLigne( 10 );
-    instrPtr->setCmd( "input" );
-    instrPtr->setParam( "x" );
-    
-    listeInstr.push_back( instrPtr );
-    
-    instrPtr->setLigne( 80 );
-    instrPtr->setCmd( "let" );
-    instrPtr->setParam( "u = x * (j - k) + y" );
-    
-    listeInstr.push_back( instrPtr );
-    
-    instrPtr->setLigne( 10 );
-    instrPtr->setCmd( "print" );
-    instrPtr->setParam( "w" );
-    
-    listeInstr.push_back( instrPtr );*/
-    
-    // Traitement
+    // Traitement( REGROUPEMENT DES INSTRUCTIONS/COPIER DANS LE FICHIER )
     // 1 - ........
     list<Instruction *>::iterator listeInstrIter = listeInstr.begin();
     
     while ( listeInstrIter != listeInstr.end() )
     {
-        listeIstrSMLtemp = (*listeInstrIter)->operation();
+		// Instructions SML de Chaque Ligne
+		listeInstrSMLtemp = (*listeInstrIter)->operation();
+        
         // INSÉRER LA NOUVELLE LISTE À LA FIN DE LA LISTE listeInstrSML
-        listeInstrSML.insert( listeInstrSML.end(), listeIstrSMLtemp.begin(),  listeIstrSMLtemp.end() );
+        listeInstrSML.insert( listeInstrSML.end(), listeInstrSMLtemp.begin(),  listeInstrSMLtemp.end() );
         
         listeInstrIter++;
     }
     
     fichSrc.close();
     
+	// 2 - ...
     // Fichier exécutable avec des instructions SML
     // 1007, 1112, 3009, 2133, ...
     fichExec.open("fichierExecutable.txt", ios::out);
