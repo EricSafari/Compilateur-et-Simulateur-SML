@@ -53,7 +53,7 @@ int main(int argc, const char * argv[])
 
 	// Associer chaque Instruction à un Offset
 	unsigned short Offset = 0;
-	map<unsigned short, unsigned short> InstructionsOffset;
+	//map<unsigned short, unsigned short> InstructionsOffset;
     
     // Fichier HAUT-NIVEAU
     fichSrc.open( "fichierSource.txt", ios::in );
@@ -80,6 +80,8 @@ int main(int argc, const char * argv[])
 		// LE 1RE CHAINE DE CHARACTÈRES EST-ELLE UN NOMBRE
 		if (!(isdigit(ligneStr[0]) && isdigit(ligneStr[1]) && ligneStr[2] == ' '))
 		{
+			// LIGNE	COMMAND		ARGUMENT
+			// 10		input		x
 			ligneInstr = stoi(ligneStr);
 
 			/*if (ligneInstr < 100)
@@ -88,14 +90,15 @@ int main(int argc, const char * argv[])
 			//str = strtok( instruction, " " );
 			// *** ENLEVER LA LIGNE ***
 			instruction.erase(0, 2 + 1);
+			strcpy( instructionTemp, instruction.c_str() );
 
-			instructionTemp = (char *)instruction.c_str();
-			// EXTRAIRE LA COMMANDE
+			// EXTRAIRE LA COMMANDE...
 			str = strtok(instructionTemp, " ");
 			command.insert(0, str);
 
 			// ****	  ENLEVER LA COMMANDE	****
-			instruction.erase(0, sizeof(str) + 1);
+			instruction.erase(0, sizeof(command) + 1);
+			//instruction.erase(0, sizeof(str) + 1);
 
 			// *** Le Reste c'est l'Argument ***
 			argument = instruction;
@@ -128,8 +131,21 @@ int main(int argc, const char * argv[])
 				instrPtr = new InstructionPrint( "GOTO", argument, ligneInstr );
 				Offset++;
 			}
-			else if (strncmp("if...goto ", str, 10))
+			else if (strncmp("if ", str, 3))
 			{
+				char * instructionIfGoto;
+				strcpy(instructionIfGoto, argument.c_str());
+				char var1 = *( strtok(instructionIfGoto, " ") );
+
+				char * operation;
+				strcpy( operation, strtok(NULL, " ") );
+				char var2 = *( strtok(NULL, " ") );
+				char * gotoStr;
+				strcpy( gotoStr, strtok(NULL, " ") );
+				strcmp(gotoStr, "goto");
+
+				ligneInstr = stoi( strtok(NULL, " ") );
+
 				InstructionsOffset[ligneInstr] = Offset;
 				instrPtr = new InstructionIfGoto( "IF...GOTO", argument, ligneInstr);
 				Offset++;
@@ -157,7 +173,15 @@ int main(int argc, const char * argv[])
     while ( listeInstrIter != listeInstr.end() )
     {
 		// Instructions SML de Chaque Ligne
-		listeInstrSMLtemp = (*listeInstrIter)->operation();
+		if (((*listeInstrIter)->getCmd() != "GOTO") && ((*listeInstrIter)->getCmd() != "IF...GOTO"))
+		{
+			listeInstrSMLtemp = (*listeInstrIter)->operation();
+		}
+		else
+		{
+			unsigned short addresse = 99;
+			listeInstrSMLtemp = (*listeInstrIter)->operation() + addresse;
+		}
         
         // INSÉRER LA NOUVELLE LISTE À LA FIN DE LA LISTE listeInstrSML
         listeInstrSML.insert( listeInstrSML.end(), listeInstrSMLtemp.begin(),  listeInstrSMLtemp.end() );
